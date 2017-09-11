@@ -18,25 +18,3 @@ $replier->register('App\Actions', function($replier) {
 });
 
 $replier->dispacth($request);
-/*
-use Nahid\FaceBot\Messengers\Templates\ListTemplate;
-
-$list = new ListTemplate();
-
-$list->addBanner("My Shop", "http://my.shop")
-    ->defaultAction("web_url", "http://google.com")
-    ->addButtonUrl("Buy", "http://my.shop/1");
-
-$list->addList("The Globe", "Everything in one place")
-    ->addButtonUrl("Buy Now", "http://my.shop/2");
-
-$list->addList("Xiaomi Redmi 4x", "China iPhone")
-    ->addButtonCall("Call Now", "8801848044143")
-    ->addButtonUrl("Buy Now", "http://my.shop/2");
-
-$list->inPayload()
-    ->addButtonUrl("See All", "http://fb.me")
-    ->addButtonUrl("View All", "http://fb.me");
-
-$x = $list->getListOptions();
-print(json_encode($x));*/

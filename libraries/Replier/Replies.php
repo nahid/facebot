@@ -39,15 +39,19 @@ class Replies
     {
         if (is_array($text)) {
             $replies = $text;
-        } else {
-            $replies = explode('|', $text);
-        }
 
-        foreach ($replies as $reply) {
-            $this->replies["message"][strtolower($reply)] = [
+            foreach ($replies as $reply) {
+                $this->replies["message"][strtolower($reply)] = [
+                    "action"    => $action
+                ];
+            }
+        } else {
+            $this->replies["message"][strtolower($text)] = [
                 "action"    => $action
             ];
         }
+
+
 
         return $this;
     }
