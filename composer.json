@@ -1,0 +1,31 @@
+{
+    "name": "nahid/facebot",
+    "description": "FaceBot is a PHP Framework for Facebook Messenger Bot development",
+    "keywords": ["facebot", "facebook", "facebook-messenger", "facebook-bot", "chatbot", "nahid", "messenger-bot", "fb-bot"],
+    "homepage": "https://github.com/nahid/facebot",
+    "license": "CC(3.0)",
+    "authors": [
+        {
+            "name": "Nahid Bin Azhar",
+            "email": "nahid.dns@gmail.com"
+        }
+    ],
+    "require": {
+        "nahid/apiz": "^1.0",
+        "symfony/http-foundation": "^3.3",
+        "predis/predis": "^1.1",
+        "josegonzalez/dotenv": "^3.1"
+    },
+    "require-dev": {
+      "symfony/var-dumper": "^3.3"
+    },
+    "autoload": {
+        "psr-4": {
+            "Nahid\\FaceBot\\": "libraries/",
+            "App\\": "app/"
+        },
+        "files": [
+            "libraries/helpers/env.php"
+        ]
+    }
+}

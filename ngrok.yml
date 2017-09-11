@@ -1,0 +1,5 @@
+tunnels:
+  facebot:
+    proto: http
+    addr: 8000
+    subdomain: facebot
