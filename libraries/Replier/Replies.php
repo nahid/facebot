@@ -4,7 +4,7 @@ namespace Nahid\FaceBot\Replier;
 
 use Closure;
 use Nahid\FaceBot\Http\Request;
-use Predis\Client;
+use Nahid\FaceBot\Messengers\Message;
 
 class Replies
 {
@@ -38,16 +38,36 @@ class Replies
     public function listen($text, $action)
     {
         if (is_array($text)) {
-            $replies = $text;
+            $listens = $text;
 
-            foreach ($replies as $reply) {
-                $this->replies["message"][strtolower($reply)] = [
+            foreach ($listens as $listen) {
+                $this->replies["message"][strtolower($listen)] = [
                     "action"    => $action
                 ];
             }
         } else {
             $this->replies["message"][strtolower($text)] = [
                 "action"    => $action
+            ];
+        }
+
+        return $this;
+    }
+
+    public function listenAndText($text, $reply)
+    {
+
+        if (is_array($text)) {
+            $listens = $text;
+
+            foreach ($listens as $listen) {
+                $this->replies["message"][strtolower($listen)] = [
+                    "text"    => $reply
+                ];
+            }
+        } else {
+            $this->replies["message"][strtolower($text)] = [
+                "text"    => $reply
             ];
         }
 
@@ -71,14 +91,21 @@ class Replies
             $namespace = "\\" . $this->namespace;
 
             if (array_key_exists($message->text, $this->replies["message"])) {
-                $action = $this->replies["message"][strtolower($message->text)]["action"];
-                $handler = explode('@', $action);
-                $class = $namespace . "\\" . $handler[0];
-                $method = $handler[1];
+                if (isset($this->replies["message"][strtolower($message->text)]["text"])) {
+                    $text = $this->replies["message"][strtolower($message->text)]["text"];
+                    $message = new Message();
+                    $request = new Request();
+                    $response = $message->text($text)->send($request->getSender()->id);
+                } else {
+                    $action = $this->replies["message"][strtolower($message->text)]["action"];
+                    $handler = explode('@', $action);
+                    $class = $namespace . "\\" . $handler[0];
+                    $method = $handler[1];
 
-                $instance = new $class();
+                    $instance = new $class();
 
-                call_user_func_array([$instance, $method], []);
+                    call_user_func_array([$instance, $method], []);
+                }
 
             } elseif ($actions = $this->regexMatcher(strtolower($message->text))) {
                 $action = $actions["value"]["action"];
