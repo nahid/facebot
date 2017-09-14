@@ -2,28 +2,31 @@
 
 namespace Nahid\FaceBot\Env;
 
-use josegonzalez\Dotenv\Loader;
+use Dotenv\Dotenv;
+use Nahid\FaceBot\Messengers\Message;
 
 class EnvManager
 {
     protected $env;
     protected $parse;
+    protected $message;
+    protected $path;
 
 
-    public function __construct()
+    public function __construct($path)
     {
+        $this->path = $path;
         $this->parse();
     }
 
     public function parse()
     {
-        $env = new Loader(__DIR__ . "/../../.env");
+        $env = new Dotenv($this->path);
+        $env->load();
 
-        $this->parse = $env->parse();
-        $this->env = $this->parse->toArray();
     }
 
-    public function has($key)
+  /*  public function has($key)
     {
         if (isset($this->env[$key])) {
             return true;
@@ -39,5 +42,5 @@ class EnvManager
         }
 
         return $default;
-    }
+    }*/
 }
