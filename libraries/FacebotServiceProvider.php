@@ -1,5 +1,5 @@
 <?php
-namespace Nahid\Talk;
+namespace Nahid\FaceBot;
 use Illuminate\Container\Container;
 use Illuminate\Foundation\Application as LaravelApplication;
 use Illuminate\Support\ServiceProvider;
@@ -16,41 +16,32 @@ class FacebotServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->setupConfig();
-        $this->setupMigrations();
     }
     /**
      * Register the application services.
      */
     public function register()
     {
-        $this->registerBroadcast();
-        $this->registerTalk();
+        $this->registerEnvManager();
+        $this->registerFacebot();
     }
     /**
      * Setup the config.
      */
     protected function setupConfig()
     {
-        $source = realpath(__DIR__.'/../config/talk.php');
+       /* $source = realpath(__DIR__.'/../config/talk.php');
         // Check if the application is a Laravel OR Lumen instance to properly merge the configuration file.
         if ($this->app instanceof LaravelApplication && $this->app->runningInConsole()) {
             $this->publishes([$source => config_path('talk.php')]);
         } elseif ($this->app instanceof LumenApplication) {
             $this->app->configure('talk');
         }
-        $this->mergeConfigFrom($source, 'talk');
+        $this->mergeConfigFrom($source, 'talk');*/
     }
+
     /**
-     * Publish migrations files.
-     */
-    protected function setupMigrations()
-    {
-        $this->publishes([
-            realpath(__DIR__.'/../database/migrations/') => database_path('migrations'),
-        ], 'migrations');
-    }
-    /**
-     * Register Talk class.
+     * Register Message class.
      */
     protected function registerFacebot()
     {
@@ -61,7 +52,7 @@ class FacebotServiceProvider extends ServiceProvider
         $this->app->alias('facebot', Message::class);
     }
     /**
-     * Register Talk class.
+     * Register EnvManager class.
      */
     protected function registerEnvManager()
     {
@@ -79,8 +70,8 @@ class FacebotServiceProvider extends ServiceProvider
     public function provides()
     {
         return [
-            'talk',
-            'talk.broadcast',
+            'facebot',
+            'facebot.env',
         ];
     }
 }
