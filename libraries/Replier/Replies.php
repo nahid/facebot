@@ -13,7 +13,12 @@ class Replies
     protected $replies = [
         "message" => [
             "text"  => [
-                "action"=>"Namespace/ExampleReplies@action"
+                "action"=>"Namespace\ExampleReplies@action"
+            ]
+        ],
+        "postback"=>[
+            "buy:type" => [
+                "action"=> "Namespace\ExampleReplies@action"
             ]
         ],
         "delivered" => [
@@ -54,6 +59,15 @@ class Replies
         return $this;
     }
 
+    public function listenPostback($command, $action)
+    {
+        $this->replies["postback"][strtolower($command)] = [
+            "action"    => $action
+        ];
+
+        return $this;
+    }
+
     public function listenAndText($text, $reply)
     {
 
@@ -85,39 +99,29 @@ class Replies
     {
 
         if ($request->hasMessageAndNoEcho()) {
+            $this->generalReply($request);
+        }
 
-            $message = $request->getMessage();
+        if ($request->getPostback()) {
+            $this->postbackReply($request);
+        }
 
-            $namespace = "\\" . $this->namespace;
+    }
 
-            if (array_key_exists($message->text, $this->replies["message"])) {
-                if (isset($this->replies["message"][strtolower($message->text)]["text"])) {
-                    $text = $this->replies["message"][strtolower($message->text)]["text"];
-                    $message = new Message();
-                    $request = new Request();
-                    $response = $message->text($text)->send($request->getSender()->id);
-                } else {
-                    $action = $this->replies["message"][strtolower($message->text)]["action"];
-                    $handler = explode('@', $action);
-                    $class = $namespace . "\\" . $handler[0];
-                    $method = $handler[1];
+    private function generalReply(Request $request)
+    {
+        $message = $request->getMessage();
 
-                    $instance = new $class();
+        $namespace = "\\" . $this->namespace;
 
-                    call_user_func_array([$instance, $method], []);
-                }
-
-            } elseif ($actions = $this->regexMatcher(strtolower($message->text))) {
-                $action = $actions["value"]["action"];
-                $handler = explode('@', $action);
-                $class = $namespace . "\\" . $handler[0];
-                $method = $handler[1];
-
-                $instance = new $class();
-
-                call_user_func_array([$instance, $method], $actions["params"]);
+        if (array_key_exists($message->text, $this->replies["message"])) {
+            if (isset($this->replies["message"][strtolower($message->text)]["text"])) {
+                $text = $this->replies["message"][strtolower($message->text)]["text"];
+                $message = new Message();
+                $request = new Request();
+                $response = $message->text($text)->send($request->getSender()->id);
             } else {
-                $action = $this->default;
+                $action = $this->replies["message"][strtolower($message->text)]["action"];
                 $handler = explode('@', $action);
                 $class = $namespace . "\\" . $handler[0];
                 $method = $handler[1];
@@ -126,8 +130,47 @@ class Replies
 
                 call_user_func_array([$instance, $method], []);
             }
-        }
 
+        } elseif ($actions = $this->regexMatcher(strtolower($message->text))) {
+            $action = $actions["value"]["action"];
+            $handler = explode('@', $action);
+            $class = $namespace . "\\" . $handler[0];
+            $method = $handler[1];
+
+            $instance = new $class();
+
+            call_user_func_array([$instance, $method], $actions["params"]);
+        } else {
+            $action = $this->default;
+            $handler = explode('@', $action);
+            $class = $namespace . "\\" . $handler[0];
+            $method = $handler[1];
+
+            $instance = new $class();
+
+            call_user_func_array([$instance, $method], []);
+        }
+    }
+
+    private function postbackReply(Request $request)
+    {
+        $postback = $request->getPostback();
+        $payload = $request->getPostbackPayload();
+
+        $command = strtolower($payload->type. ":". $postback->title);
+
+        $namespace = "\\" . $this->namespace;
+
+        if (array_key_exists($command, $this->replies["postback"])) {
+                $action = $this->replies["postback"][$command]["action"];
+                $handler = explode('@', $action);
+                $class = $namespace . "\\" . $handler[0];
+                $method = $handler[1];
+
+                $instance = new $class();
+                call_user_func_array([$instance, $method], []);
+
+        }
     }
 
 

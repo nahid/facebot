@@ -11,13 +11,13 @@ trait Buttons
 
     }
 
-    public function addButtonPostback($title, $payload)
+    public function addButtonPostback($title, $type, $payload)
     {
         if (isset($this->options["payload"]['buttons'])) {
-
+            $payload = array_merge($payload, ["type"=> $type]);
             $button = [
                 "type" => "postback",
-                "payload" => $payload,
+                "payload" => json_encode($payload),
                 "title" => $title
             ];
 

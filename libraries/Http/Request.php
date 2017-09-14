@@ -97,6 +97,30 @@ class Request
 
         return [];
     }
+
+    public function getPostback()
+    {
+        $messaging = $this->getMessaging();
+        if(isset($messaging[0]->postback)) {
+            $postback = $messaging[0]->postback;
+            return $postback;
+        }
+
+        return false;
+    }
+
+    public function getPostbackPayload()
+    {
+        if ($postback = $this->getPostback()) {
+            $payload = json_decode($postback->payload);
+            if (json_last_error() == JSON_ERROR_NONE) {
+                return $payload;
+            }
+        }
+
+        return false;
+
+    }
     
 
     public function hasMessageAndNoEcho()
