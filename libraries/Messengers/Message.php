@@ -10,7 +10,6 @@ use Nahid\FaceBot\Messengers\Templates\ListTemplate;
 
 class Message
 {
-    protected $envPath;
     protected $api;
     protected $options = [
         "recipient", "message"
@@ -201,18 +200,6 @@ class Message
 
         return false;
     }
-
-
-    public function setEnvPath($path)
-    {
-        $this->envPath = rtrim($path, '/') . '/';
-
-    }
-
-    public function getEnvPath()
-    {
-        return $this->envPath;
-    }
-
+    
 
 }
