@@ -3,6 +3,7 @@
 namespace Nahid\FaceBot\Http;
 
 use Symfony\Component\HttpFoundation\Request as HttpRequest;
+use Nahid\FaceBot\Replier\Replies;
 
 class Request
 {
@@ -187,5 +188,20 @@ class Request
         }
 
         return false;
+    }
+
+
+    public function handler($path)
+    {
+
+        $replier = new Replies();
+        $request = new Request();
+
+        $replier->register('App\Actions', function($replier) use($path) {
+            require $path;
+        });
+
+        $replier->dispacth($request);
+
     }
 }
