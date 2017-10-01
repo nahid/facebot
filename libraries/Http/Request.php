@@ -88,6 +88,7 @@ class Request
 
         return false;
     }
+    
 
     public function getMessage()
     {
@@ -96,6 +97,17 @@ class Request
         }
 
         return [];
+    }
+
+    public function getCoordinates()
+    {
+        $message = $this->getMessage();
+        if (isset($message->attachments[0]->payload->coordinates)) {
+            return $message->attachments[0]->payload->coordinates;
+        }
+
+        return false;
+        
     }
 
     public function getPostback()

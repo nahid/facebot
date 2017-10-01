@@ -3,6 +3,7 @@
 namespace Nahid\FaceBot\Replier;
 
 use Closure;
+use Nahid\FaceBot\Db\Storage;
 use Nahid\FaceBot\Http\Request;
 use Nahid\FaceBot\Messengers\Message;
 
@@ -110,6 +111,12 @@ class Replies
 
     private function generalReply(Request $request)
     {
+        $storage = new Storage();
+        $action = $storage->getCurrentState($request->getSender()->id);
+        if (!is_null($action)) {
+            return $this->dispatchAction($action);
+        }
+
         $message = $request->getMessage();
 
         $namespace = "\\" . $this->namespace;
@@ -152,13 +159,28 @@ class Replies
         }
     }
 
+    protected function dispatchAction($action)
+    {
+
+        $namespace = "\\" . $action;
+
+        $handler = explode('@', $namespace);
+        $class = $handler[0];
+        $method = $handler[1];
+
+        $instance = new $class();
+
+        return call_user_func_array([$instance, $method], []);
+
+
+    }
+
     private function postbackReply(Request $request)
     {
         $postback = $request->getPostback();
         $payload = $request->getPostbackPayload();
 
         $command = strtolower($payload->type. ":". $postback->title);
-
         $namespace = "\\" . $this->namespace;
 
         if (array_key_exists($command, $this->replies["postback"])) {

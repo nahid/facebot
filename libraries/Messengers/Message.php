@@ -178,6 +178,15 @@ class Message
         return new Response($this->api->sendMessage($this->options));
     }
 
+    public function getProfileInfo($id, array $fields)
+    {
+        $response = $this->api->me($id, $fields);
+
+
+        return $response->parsejson();
+
+    }
+
 
     protected function getMimeType($file)
     {
@@ -199,6 +208,12 @@ class Message
         }
 
         return false;
+    }
+
+
+    public function subscribe()
+    {
+        return $this->api->subscribe();
     }
 
 

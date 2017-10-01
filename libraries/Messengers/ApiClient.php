@@ -22,11 +22,20 @@ class ApiClient extends AbstractApi
         return _env("PAGE_ACCESS_TOKEN");
     }
 
-    public function me()
+    public function subscribe()
     {
         return $this->query([
             'access_token'=> $this->getAccessToken()
         ])->post('/me/subscribed_apps');
+    }
+
+    public function me($id, array $fields)
+    {
+        $fields = implode(',', $fields);
+        return $this->query([
+            "fields"=>$fields,
+            "access_token"=> $this->getAccessToken()
+        ])->get($id);
     }
 
 
