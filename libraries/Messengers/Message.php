@@ -174,8 +174,12 @@ class Message
             $this->options['message']['attachment'] = $this->template->getOptions();
         }
 
+        $options = $this->options;
+        $this->options = [
+            "recipient", "message"
+        ];
 
-        return new Response($this->api->sendMessage($this->options));
+        return new Response($this->api->sendMessage($options));
     }
 
     public function getProfileInfo($id, array $fields)

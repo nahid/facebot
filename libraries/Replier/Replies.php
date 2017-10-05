@@ -120,15 +120,36 @@ class Replies
         $message = $request->getMessage();
 
         $namespace = "\\" . $this->namespace;
+        if (isset($message->text)) {
 
-        if (array_key_exists($message->text, $this->replies["message"])) {
-            if (isset($this->replies["message"][strtolower($message->text)]["text"])) {
-                $text = $this->replies["message"][strtolower($message->text)]["text"];
-                $message = new Message();
-                $request = new Request();
-                $response = $message->text($text)->send($request->getSender()->id);
+            if (array_key_exists($message->text, $this->replies["message"])) {
+                if (isset($this->replies["message"][strtolower($message->text)]["text"])) {
+                    $text = $this->replies["message"][strtolower($message->text)]["text"];
+                    $message = new Message();
+                    $request = new Request();
+                    $response = $message->text($text)->send($request->getSender()->id);
+                } else {
+                    $action = $this->replies["message"][strtolower($message->text)]["action"];
+                    $handler = explode('@', $action);
+                    $class = $namespace . "\\" . $handler[0];
+                    $method = $handler[1];
+
+                    $instance = new $class();
+
+                    call_user_func_array([$instance, $method], []);
+                }
+
+            } elseif ($actions = $this->regexMatcher(strtolower($message->text))) {
+                $action = $actions["value"]["action"];
+                $handler = explode('@', $action);
+                $class = $namespace . "\\" . $handler[0];
+                $method = $handler[1];
+
+                $instance = new $class();
+
+                call_user_func_array([$instance, $method], $actions["params"]);
             } else {
-                $action = $this->replies["message"][strtolower($message->text)]["action"];
+                $action = $this->default;
                 $handler = explode('@', $action);
                 $class = $namespace . "\\" . $handler[0];
                 $method = $handler[1];
@@ -137,25 +158,6 @@ class Replies
 
                 call_user_func_array([$instance, $method], []);
             }
-
-        } elseif ($actions = $this->regexMatcher(strtolower($message->text))) {
-            $action = $actions["value"]["action"];
-            $handler = explode('@', $action);
-            $class = $namespace . "\\" . $handler[0];
-            $method = $handler[1];
-
-            $instance = new $class();
-
-            call_user_func_array([$instance, $method], $actions["params"]);
-        } else {
-            $action = $this->default;
-            $handler = explode('@', $action);
-            $class = $namespace . "\\" . $handler[0];
-            $method = $handler[1];
-
-            $instance = new $class();
-
-            call_user_func_array([$instance, $method], []);
         }
     }
 
